@@ -9,7 +9,8 @@ function NilaiInput({ value, onSave }: { value: string; onSave: (v: string) => v
   useEffect(() => { setLocal(value); }, [value]);
   return (
     <input
-      type="number"
+      type="text"
+      inputMode="decimal"
       value={local}
       onChange={(e) => setLocal(e.target.value)}
       onBlur={() => onSave(local)}
@@ -90,6 +91,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
 
   const saveCriterion = async (c: Criterion) => {
     if (!c.name.trim()) return;
+    if (c.weight <= 0 || c.weight > 1) return;
     setSavingId(c.id);
     const res = await fetch(`/api/projects/${projectId}/criteria`, {
       method: 'POST',
@@ -175,7 +177,8 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
 
   const handleValueChange = useCallback(
     async (altId: string, critId: string, raw: string) => {
-      const num = parseFloat(raw);
+      const cleaned = raw.replace(/\./g, '').replace(',', '.');
+      const num = parseFloat(cleaned);
       if (isNaN(num)) return;
 
       setValues((prev) => {
