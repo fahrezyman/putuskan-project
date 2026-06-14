@@ -3,6 +3,7 @@ export interface Project {
   userId: string;
   name: string;
   description: string | null;
+  conclusion: string | null;
   method: 'SAW';
   createdAt: Date;
   updatedAt: Date;

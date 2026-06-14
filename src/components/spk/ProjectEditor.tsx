@@ -47,9 +47,10 @@ interface Props {
   initialCriteria: Criterion[];
   initialAlternatives: Alternative[];
   initialValues: CriterionValue[];
+  initialConclusion: string | null;
 }
 
-export default function ProjectEditor({ projectId, initialCriteria, initialAlternatives, initialValues }: Props) {
+export default function ProjectEditor({ projectId, initialCriteria, initialAlternatives, initialValues, initialConclusion }: Props) {
   const [tab, setTab] = useState<Tab>('faktor');
   const [criteria, setCriteria] = useState<Criterion[]>(initialCriteria);
   const [alternatives, setAlternatives] = useState<Alternative[]>(initialAlternatives);
@@ -566,6 +567,8 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
       {/* ── Tab: Hasil ── */}
       {tab === 'hasil' && (
         <ResultsView
+          projectId={projectId}
+          initialConclusion={initialConclusion}
           results={results}
           criteria={savedCriteria}
           alternatives={savedAlternatives}

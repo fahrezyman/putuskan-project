@@ -28,10 +28,10 @@ export async function createProject(userId: string, name: string, description: s
   return id;
 }
 
-export async function updateProject(id: string, data: { name: string; description: string | null }): Promise<void> {
+export async function updateProject(id: string, data: { name: string; description: string | null; conclusion: string | null }): Promise<void> {
   await pool.execute(
-    'UPDATE project SET name = ?, description = ? WHERE id = ?',
-    [data.name, data.description, id]
+    'UPDATE project SET name = ?, description = ?, conclusion = ? WHERE id = ?',
+    [data.name, data.description, data.conclusion, id]
   );
 }
 

@@ -5,6 +5,7 @@ interface Project {
   id: string;
   name: string;
   description: string | null;
+  conclusion: string | null;
   createdAt: string | Date;
 }
 

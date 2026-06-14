@@ -1,7 +1,10 @@
+import { useState, useRef } from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import type { SAWResult, Criterion, Alternative } from '../../types';
 
 interface Props {
+  projectId: string;
+  initialConclusion: string | null;
   results: SAWResult[];
   criteria: Criterion[];
   alternatives: Alternative[];
@@ -10,7 +13,28 @@ interface Props {
 
 const MEDALS = ['🥇', '🥈', '🥉'];
 
-export default function ResultsView({ results, criteria, alternatives, weightValid }: Props) {
+export default function ResultsView({ projectId, initialConclusion, results, criteria, alternatives, weightValid }: Props) {
+  const [conclusion, setConclusion] = useState(initialConclusion ?? '');
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const saveConclusion = async (text: string) => {
+    setSaveStatus('saving');
+    await fetch(`/api/projects/${projectId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ conclusion: text }),
+    });
+    setSaveStatus('saved');
+    setTimeout(() => setSaveStatus('idle'), 2000);
+  };
+
+  const handleConclusionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value;
+    setConclusion(text);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => saveConclusion(text), 800);
+  };
   if (criteria.length === 0 || alternatives.length === 0) {
     return (
       <div className="brutal-card p-12 text-center text-[#333333]">
@@ -86,6 +110,23 @@ export default function ResultsView({ results, criteria, alternatives, weightVal
             />
           </BarChart>
         </ResponsiveContainer>
+      </div>
+
+      {/* Conclusion */}
+      <div className="brutal-card p-6">
+        <h2 className="text-xl font-bold mb-1">Apa keputusanmu<span className="text-[#FF3D00]">?</span></h2>
+        <p className="text-sm text-[#333333] mb-4">Tulis kesimpulannya di sini — tersimpan otomatis bareng data ini.</p>
+        <textarea
+          value={conclusion}
+          onChange={handleConclusionChange}
+          placeholder="Contoh: Akhirnya pilih Laptop A karena skor tertinggi dan budget paling cocok."
+          rows={3}
+          className="brutal-input w-full px-4 py-3 text-sm resize-none"
+        />
+        <p className="text-xs text-[#333333] mt-2 h-4">
+          {saveStatus === 'saving' && 'Menyimpan...'}
+          {saveStatus === 'saved' && '✓ Tersimpan'}
+        </p>
       </div>
 
       {/* Step-by-step — intentionally formal for academic use */}

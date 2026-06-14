@@ -1,10 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
 import { toast } from '../ui/Toast';
 
+function getRelativeTime(date: string | Date): string {
+  const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+  if (diff < 3600) return 'baru saja';
+  if (diff < 86400) return `${Math.floor(diff / 3600)} jam lalu`;
+  const days = Math.floor(diff / 86400);
+  if (days === 1) return 'kemarin';
+  if (days < 7) return `${days} hari lalu`;
+  if (days < 30) return `${Math.floor(days / 7)} minggu lalu`;
+  if (days < 365) return `${Math.floor(days / 30)} bulan lalu`;
+  return `${Math.floor(days / 365)} tahun lalu`;
+}
+
 interface Project {
   id: string;
   name: string;
   description: string | null;
+  conclusion: string | null;
   createdAt: string | Date;
 }
 
@@ -77,10 +90,19 @@ export default function ProjectCard({ project, onDeleted }: Props) {
         {project.description && (
           <p className="text-sm text-[#333333] line-clamp-2">{project.description}</p>
         )}
-        <p className="text-xs text-[#333333] mt-3">
-          {new Date(project.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
-        </p>
+        {project.conclusion && (
+          <p className="text-sm text-[#333333] italic line-clamp-2 mt-2 border-l-2 border-[#FF3D00] pl-2">
+            {project.conclusion}
+          </p>
+        )}
       </a>
+
+      <div className="mt-4 pt-3 border-t-2 border-[#F0F0F0] flex items-baseline gap-2">
+        <span className="text-xs font-bold text-[#1A1A1A]">{getRelativeTime(project.createdAt)}</span>
+        <span className="text-xs text-[#333333]">
+          · {new Date(project.createdAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
+        </span>
+      </div>
     </div>
   );
 }

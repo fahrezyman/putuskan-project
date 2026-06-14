@@ -4,6 +4,32 @@ import Navbar from '../components/layout/Navbar.astro';
 
 const user = Astro.locals.user;
 if (user) return Astro.redirect('/dashboard');
+
+const useCases = [
+  { icon: '💻', title: 'Milih Laptop / Gadget', desc: 'Banding-bandingin spec, harga, dan garansi biar ga nyesel beli.' },
+  { icon: '🏠', title: 'Cari Kos atau Rumah', desc: 'Nilai lokasi, harga, fasilitas — bukan cuma feeling.' },
+  { icon: '🏖️', title: 'Destinasi Wisata', desc: 'Pilih tujuan liburan berdasarkan budget, jarak, dan vibe.' },
+  { icon: '👥', title: 'Rekrutmen Karyawan', desc: 'Seleksi kandidat secara objektif pakai kriteria yang jelas.' },
+  { icon: '🚗', title: 'Milih Kendaraan', desc: 'Bandingkan harga, konsumsi BBM, pajak, dan kenyamanan.' },
+  { icon: '📦', title: 'Seleksi Supplier', desc: 'Pilih supplier terbaik dari harga, kualitas, dan ketepatan kirim.' },
+];
+
+const reasons = [
+  { title: 'Ga perlu rumus manual', desc: 'Biasanya SPK dikerjain di Excel — nulis rumus normalisasi, weighted sum, satu per satu. Di sini? Kamu tinggal input, sistem yang hitung.' },
+  { title: 'Ga bisa salah ketik', desc: 'Spreadsheet rawan human error — satu cell salah, semua hasil ikut salah. Putuskan menghitung otomatis tanpa risiko typo.' },
+  { title: 'Lebih cepat', desc: 'Yang biasanya makan waktu berjam-jam ngoprek Excel, di sini selesai dalam hitungan menit.' },
+  { title: 'Bisa diakses dari mana aja', desc: 'Tidak perlu kirim-kiriman file Excel. Project tersimpan online, bisa dibuka kapan saja dari perangkat apapun.' },
+];
+
+const faqs = [
+  { q: 'Apakah Putuskan gratis?', a: 'Iya, gratis untuk sekarang. Daftar dan langsung bisa pakai tanpa kartu kredit.' },
+  { q: 'Metode apa yang dipakai?', a: 'SAW (Simple Additive Weighting) — metode SPK yang sederhana, mudah dipahami, dan hasilnya bisa dipertanggungjawabkan.' },
+  { q: 'Apakah data saya aman?', a: 'Data project kamu tersimpan di server kami dan tidak dibagikan ke siapapun. Hanya kamu yang bisa akses project milikmu.' },
+  { q: 'Bisa dipakai untuk keputusan apa aja?', a: 'Apa saja yang punya pilihan lebih dari satu dan bisa dinilai pakai kriteria terukur — dari milih laptop sampai seleksi karyawan.' },
+  { q: 'Harus ngerti statistik dulu?', a: 'Sama sekali tidak. Putuskan dirancang buat siapa aja — kamu tinggal masukin faktor, pilihan, dan nilai. Sistem yang hitung.' },
+];
+
+const delayClasses = ['anim-d1', 'anim-d2', 'anim-d3', 'anim-d4', 'anim-d5', 'anim-d6'];
 ---
 
 <Layout title="Beranda">
@@ -11,21 +37,22 @@ if (user) return Astro.redirect('/dashboard');
     <Navbar />
 
     <main class="flex-1">
-      <!-- Hero -->
+
+      <!-- ── 1. Hero ── -->
       <section class="border-b-2 border-[#1A1A1A] bg-white">
         <div class="container mx-auto px-4 max-w-6xl py-16 md:py-32">
           <div class="max-w-3xl">
-            <div class="inline-block border-2 border-[#1A1A1A] bg-[#FF3D00] px-3 py-1 text-white text-xs md:text-sm font-bold mb-6">
+            <div class="hero-anim hero-anim-1 inline-block border-2 border-[#1A1A1A] bg-[#FF3D00] px-3 py-1 text-white text-xs md:text-sm font-bold mb-6">
               SISTEM PENDUKUNG KEPUTUSAN
             </div>
-            <h1 class="text-4xl md:text-7xl font-bold text-[#1A1A1A] leading-tight mb-6">
+            <h1 class="hero-anim hero-anim-2 text-4xl md:text-7xl font-bold text-[#1A1A1A] leading-tight mb-6">
               Data bicara.<br />
               <span class="text-[#FF3D00]">Kamu putuskan.</span>
             </h1>
-            <p class="text-base md:text-lg text-[#333333] mb-8 md:mb-10 max-w-xl">
+            <p class="hero-anim hero-anim-3 text-base md:text-lg text-[#333333] mb-8 md:mb-10 max-w-xl">
               Bingung milih antara banyak pilihan? Masukin faktor-faktornya, kasih nilai, dan biar sistem yang rangking.
             </p>
-            <div class="flex flex-wrap gap-3">
+            <div class="hero-anim hero-anim-4 flex flex-wrap gap-3">
               <a href="/register" class="brutal-btn px-6 md:px-8 py-3 md:py-4 bg-[#FF3D00] text-white text-sm md:text-base font-bold inline-block">
                 Mulai Gratis
               </a>
@@ -37,17 +64,43 @@ if (user) return Astro.redirect('/dashboard');
         </div>
       </section>
 
-      <!-- Cara Kerja -->
-      <section id="cara-kerja" class="py-20 border-b-2 border-[#1A1A1A]">
+      <!-- ── 2. Use Cases ── -->
+      <section class="py-20 border-b-2 border-[#1A1A1A] bg-[#F0F0F0]">
         <div class="container mx-auto px-4 max-w-6xl">
-          <h2 class="text-3xl md:text-4xl font-bold mb-12">Cara kerjanya simpel<span class="text-[#FF3D00]">.</span></h2>
+          <div class="mb-12 anim">
+            <div class="inline-block border-2 border-[#1A1A1A] bg-[#1A1A1A] px-3 py-1 text-white text-xs font-bold mb-4">
+              APA ITU SPK?
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">
+              Sistem yang bantu kamu<br />milih dengan kepala dingin<span class="text-[#FF3D00]">.</span>
+            </h2>
+            <p class="text-[#333333] max-w-xl">
+              SPK (Sistem Pendukung Keputusan) adalah cara terstruktur buat bandingin pilihan berdasarkan kriteria yang kamu tentuin sendiri. Bukan sulap — tapi hasilnya jauh lebih objektif daripada cuma ngandalin feeling.
+            </p>
+          </div>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {useCases.map((uc, i) => (
+              <div class={`brutal-card p-6 bg-white flex flex-col gap-3 anim ${delayClasses[i]}`}>
+                <span class="text-3xl">{uc.icon}</span>
+                <p class="font-bold text-[#1A1A1A]">{uc.title}</p>
+                <p class="text-sm text-[#333333]">{uc.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 3. Cara Kerja ── -->
+      <section id="cara-kerja" class="py-20 border-b-2 border-[#1A1A1A] bg-white">
+        <div class="container mx-auto px-4 max-w-6xl">
+          <h2 class="text-3xl md:text-4xl font-bold mb-12 anim">Cara kerjanya simpel<span class="text-[#FF3D00]">.</span></h2>
           <div class="grid md:grid-cols-3">
             {[
               { step: '01', title: 'Tentuin faktornya', desc: 'Apa aja yang penting buat kamu? Harga? Jarak? Rating? Tulis semua dan kasih tau seberapa penting masing-masing.' },
               { step: '02', title: 'Masukin pilihannya', desc: 'Daftarin semua opsi yang lagi kamu bandingin, terus beri nilai untuk setiap faktor.' },
               { step: '03', title: 'Lihat hasilnya', desc: 'Sistem langsung hitung dan kasih ranking. Ada detail perhitungannya juga kalau kamu mau lihat.' },
             ].map((item, i) => (
-              <div class:list={['p-8 border-2 border-[#1A1A1A] bg-white', i > 0 ? 'md:-ml-[2px] -mt-[2px] md:mt-0' : '']}>
+              <div class:list={['p-8 border-2 border-[#1A1A1A] anim', delayClasses[i], i > 0 ? 'md:-ml-[2px] -mt-[2px] md:mt-0' : '']}>
                 <div class="text-5xl font-bold text-[#FF3D00] mb-4">{item.step}</div>
                 <h3 class="text-xl font-bold mb-3">{item.title}</h3>
                 <p class="text-[#333333]">{item.desc}</p>
@@ -57,24 +110,177 @@ if (user) return Astro.redirect('/dashboard');
         </div>
       </section>
 
-      <!-- CTA -->
-      <section class="py-20 bg-[#1A1A1A]">
+      <!-- ── 4. Hasil Akhir (dummy) ── -->
+      <section class="py-20 border-b-2 border-[#1A1A1A] bg-[#F0F0F0]">
+        <div class="container mx-auto px-4 max-w-6xl">
+          <div class="mb-12 anim">
+            <div class="inline-block border-2 border-[#1A1A1A] bg-[#1A1A1A] px-3 py-1 text-white text-xs font-bold mb-4">
+              CONTOH HASIL
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">
+              Hasilnya langsung keliatan<span class="text-[#FF3D00]">.</span>
+            </h2>
+            <p class="text-[#333333]">Ranking jelas, skor transparan, dan ada detail perhitungan buat yang mau tau lebih dalam.</p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6 items-start">
+            <!-- Ranking cards -->
+            <div class="flex flex-col gap-3">
+              {[
+                { rank: '🥇', name: 'Kos Bu Nanik', score: '0.87', pct: '100' },
+                { rank: '🥈', name: 'Kos Pak Adi', score: '0.72', pct: '83' },
+                { rank: '🥉', name: 'Kos Bu Siti', score: '0.61', pct: '70' },
+              ].map((r, i) => (
+                <div class={`brutal-card p-4 flex items-center gap-4 bg-white anim ${delayClasses[i]}`}>
+                  <span class="text-2xl w-10 text-center">{r.rank}</span>
+                  <div class="flex-1">
+                    <p class="font-bold">{r.name}</p>
+                    <div class="w-full bg-[#F0F0F0] border border-[#1A1A1A] h-2 mt-2">
+                      <div class="h-full bg-[#FF3D00]" style={`width: ${r.pct}%`} />
+                    </div>
+                  </div>
+                  <span class="font-bold text-lg tabular-nums">{r.score}</span>
+                </div>
+              ))}
+            </div>
+
+            <!-- Bar chart -->
+            <div class="brutal-card p-6 bg-white anim anim-d3">
+              <p class="font-bold mb-6">Perbandingan skor</p>
+              <div id="bar-chart" class="flex items-end gap-6 px-2 border-b-2 border-l-2 border-[#1A1A1A] mb-3" style="height: 140px">
+                {[
+                  { name: 'Kos Bu Nanik', score: '0.87', h: '110px' },
+                  { name: 'Kos Pak Adi',  score: '0.72', h: '91px' },
+                  { name: 'Kos Bu Siti',  score: '0.61', h: '77px' },
+                ].map((b) => (
+                  <div class="flex-1 flex flex-col items-center justify-end">
+                    <span class="text-xs font-bold text-[#333333] mb-1">{b.score}</span>
+                    <div class="w-full bg-[#1A1A1A] border-2 border-[#1A1A1A] bar-grow" style={`height: ${b.h}`} />
+                  </div>
+                ))}
+              </div>
+              <div class="flex gap-6 px-2">
+                {['Kos Bu Nanik', 'Kos Pak Adi', 'Kos Bu Siti'].map((name) => (
+                  <span class="flex-1 text-center text-xs font-bold text-[#333333]">{name}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 5. Kenapa Putuskan ── -->
+      <section class="py-20 border-b-2 border-[#1A1A1A] bg-white">
+        <div class="container mx-auto px-4 max-w-6xl">
+          <div class="mb-12 anim">
+            <div class="inline-block border-2 border-[#1A1A1A] bg-[#FF3D00] px-3 py-1 text-white text-xs font-bold mb-4">
+              KENAPA PUTUSKAN?
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold mb-4">
+              SPK tanpa Excel.<br />Tanpa rumus. Tanpa ribet<span class="text-[#FF3D00]">.</span>
+            </h2>
+            <p class="text-[#333333] max-w-xl">Selama ini SPK identik sama spreadsheet penuh rumus yang bikin pusing. Putuskan hadir buat ngubah itu.</p>
+          </div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            {reasons.map((r, i) => (
+              <div class={`brutal-card p-6 flex gap-4 anim ${delayClasses[i]}`}>
+                <span class="text-2xl font-bold text-[#FF3D00] w-8 flex-shrink-0">0{i + 1}</span>
+                <div>
+                  <p class="font-bold text-lg mb-1">{r.title}</p>
+                  <p class="text-[#333333] text-sm">{r.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 6. FAQ ── -->
+      <section class="py-20 border-b-2 border-[#1A1A1A] bg-[#F0F0F0]">
+        <div class="container mx-auto px-4 max-w-6xl">
+          <div class="mb-12 anim">
+            <div class="inline-block border-2 border-[#1A1A1A] bg-[#1A1A1A] px-3 py-1 text-white text-xs font-bold mb-4">
+              FAQ
+            </div>
+            <h2 class="text-3xl md:text-4xl font-bold">
+              Pertanyaan yang sering ditanya<span class="text-[#FF3D00]">.</span>
+            </h2>
+          </div>
+          <div class="flex flex-col gap-3 max-w-3xl">
+            {faqs.map((faq, i) => (
+              <div class={`brutal-card p-6 bg-white anim ${delayClasses[i]}`}>
+                <p class="font-bold mb-2">{faq.q}</p>
+                <p class="text-[#333333] text-sm">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 7. CTA Terakhir ── -->
+      <section class="py-24 bg-[#1A1A1A]">
         <div class="container mx-auto px-4 max-w-6xl text-center">
-          <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
-            Udah bingung lama<span class="text-[#FF3D00]">?</span><br/>Yuk mulai sekarang.
+          <p class="text-[#FF3D00] font-bold text-sm uppercase tracking-widest mb-4 anim">Udah bingung lama?</p>
+          <h2 class="text-3xl md:text-5xl font-bold text-white mb-4 anim anim-d1">
+            Coba sekali, langsung ngerti<span class="text-[#FF3D00]">.</span>
           </h2>
-          <a href="/register" class="brutal-btn px-8 py-4 bg-[#FF3D00] text-white text-base font-bold inline-block">
-            Daftar Gratis
+          <p class="text-[#F0F0F0] mb-10 max-w-md mx-auto anim anim-d2">
+            Gratis, tanpa kartu kredit, tanpa ribet. Daftar dan buat keputusan pertamamu dalam 5 menit.
+          </p>
+          <a href="/register" class="brutal-btn px-10 py-4 bg-[#FF3D00] text-white text-base font-bold inline-block anim anim-d3">
+            Daftar Gratis Sekarang
           </a>
         </div>
       </section>
+
     </main>
 
-    <footer class="border-t-2 border-[#1A1A1A] bg-white py-6">
-      <div class="container mx-auto px-4 max-w-6xl flex justify-between items-center text-sm text-[#333333]">
-        <img src="/putuskan-logo.png" alt="Putuskan.id" class="h-6 w-auto" />
-        <span>© 2026</span>
+    <!-- ── 8. Footer ── -->
+    <footer class="border-t-2 border-[#1A1A1A] bg-white py-8">
+      <div class="container mx-auto px-4 max-w-6xl">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <div class="flex items-center gap-3">
+            <img src="/putuskan-logo.png" alt="Putuskan.id" class="h-6 w-auto" />
+            <span class="text-sm text-[#333333]">Putuskan.id</span>
+            <span class="text-sm text-[#333333]">Data bicara. Kamu putuskan.</span>
+          </div>
+          <div class="flex items-center gap-6 text-sm text-[#333333]">
+            
+            <span>© 2026 Fahrezyman Studio</span>
+          </div>
+        </div>
       </div>
     </footer>
+
   </div>
 </Layout>
+
+<script>
+  // Scroll-triggered animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.anim').forEach((el) => observer.observe(el));
+
+  // Bar chart animate when section enters viewport
+  const barChart = document.getElementById('bar-chart');
+  if (barChart) {
+    const barObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.bar-grow').forEach((bar, i) => {
+            setTimeout(() => bar.classList.add('visible'), i * 120);
+          });
+          barObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.3 });
+    barObserver.observe(barChart);
+  }
+</script>
