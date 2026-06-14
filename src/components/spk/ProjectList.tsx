@@ -53,6 +53,24 @@ function EmptyState() {
         </a>
       </div>
 
+      {/* Keyboard shortcut hint */}
+      <div className="flex items-center gap-3 flex-wrap text-xs text-[#333333] border-2 border-[#1A1A1A] bg-[#F0F0F0] px-4 py-3 w-fit">
+        <span className="font-bold">Tips keyboard:</span>
+        <span className="flex gap-1.5 items-center">
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-white">←</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-white">→</kbd>
+          <span>geser antar tab</span>
+        </span>
+        <span className="text-[#333333]">·</span>
+        <span className="flex gap-1.5 items-center">
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-white">1</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-white">2</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-white">3</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-white">4</kbd>
+          <span>loncat ke tab langsung</span>
+        </span>
+      </div>
+
       {/* Steps */}
       <div>
         <h3 className="text-sm font-bold text-[#333333] uppercase tracking-widest mb-4">Cara pakainya</h3>

@@ -21,6 +21,46 @@
   --border-brutal: 2px solid #1A1A1A;
 }
 
+/* ── Dark Mode ── */
+html.dark {
+  color-scheme: dark;
+  --color-ink: #EDEDED;
+  --color-gray: #888888;
+  --color-surface: #111111;
+  --color-white: #1C1C1C;
+  --shadow-brutal: 4px 4px 0px #555555;
+  --shadow-brutal-lg: 6px 6px 0px #555555;
+  --shadow-brutal-accent: 4px 4px 0px #FF3D00;
+  --border-brutal: 2px solid #555555;
+}
+
+html.dark body {
+  background-color: #111111;
+  color: #EDEDED;
+}
+
+html.dark h1, html.dark h2, html.dark h3,
+html.dark h4, html.dark h5, html.dark h6 {
+  color: #EDEDED;
+}
+
+/* Tailwind hardcoded color overrides */
+html.dark .bg-white             { background-color: #1C1C1C !important; }
+html.dark .bg-\[\#F0F0F0\]     { background-color: #252525 !important; }
+html.dark .bg-\[\#1A1A1A\]     { background-color: #2D2D2D !important; }
+html.dark .text-\[\#1A1A1A\]   { color: #EDEDED !important; }
+html.dark .text-\[\#333333\]   { color: #888888 !important; }
+html.dark .border-\[\#1A1A1A\] { border-color: #555555 !important; }
+html.dark .border-\[\#F0F0F0\] { border-color: #444444 !important; }
+html.dark .border-b-2           { border-color: #444444; }
+
+/* Input & select dark */
+html.dark input, html.dark select, html.dark textarea {
+  background-color: #1C1C1C;
+  color: #EDEDED;
+}
+html.dark input::placeholder { color: #666666; }
+
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(16px); }
   to   { opacity: 1; transform: translateX(0); }

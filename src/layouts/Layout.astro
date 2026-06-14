@@ -17,6 +17,14 @@ const { title, description = 'Sistem Pendukung Keputusan berbasis SAW — Data b
     <meta name="description" content={description} />
     <title>{title} — Putuskan.id</title>
     <link rel="icon" type="image/png" href="/putuskan-logo.png" />
+    <!-- Prevent flash of wrong theme -->
+    <script is:inline>
+      const saved = localStorage.getItem('theme');
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      if (saved === 'dark' || (!saved && prefersDark)) {
+        document.documentElement.classList.add('dark');
+      }
+    </script>
   </head>
   <body>
     <slot />

@@ -10,6 +10,14 @@ const user = Astro.locals.user ?? null;
     </a>
 
     <div class="flex items-center gap-3">
+      <button
+        id="dark-toggle"
+        aria-label="Toggle dark mode"
+        class="brutal-btn w-9 h-9 flex items-center justify-center bg-white text-base"
+      >
+        <span id="dark-icon"></span>
+      </button>
+
       {user ? (
         <>
           <a
@@ -51,5 +59,19 @@ const user = Astro.locals.user ?? null;
         onSuccess: () => { window.location.href = '/'; },
       },
     });
+  });
+
+  const html = document.documentElement;
+  const icon = document.getElementById('dark-icon')!;
+
+  const update = () => {
+    icon.textContent = html.classList.contains('dark') ? '☀️' : '🌙';
+  };
+  update();
+
+  document.getElementById('dark-toggle')?.addEventListener('click', () => {
+    const isDark = html.classList.toggle('dark');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    update();
   });
 </script>

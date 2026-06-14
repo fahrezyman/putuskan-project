@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Criterion, Alternative, CriterionValue, SAWResult } from '../../types';
 import { calculateSAW } from '../../lib/saw';
 import ResultsView from './ResultsView';
@@ -55,14 +55,16 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
   const [alternatives, setAlternatives] = useState<Alternative[]>(initialAlternatives);
   const [values, setValues] = useState<CriterionValue[]>(initialValues);
   const [savingId, setSavingId] = useState<string | null>(null);
+  const pendingFocus = useRef<string | null>(null);
 
   const totalWeight = criteria.reduce((s, c) => s + Number(c.weight), 0);
   const weightValid = Math.abs(totalWeight - 1) < 0.001;
 
   // ── Faktor (Kriteria) ──
-  const addCriterion = () => {
+  const addCriterion = (autoFocus = false) => {
+    const id = `draft-${Date.now()}`;
     const draft: Criterion = {
-      id: `draft-${Date.now()}`,
+      id,
       projectId,
       name: '',
       weight: 0,
@@ -70,8 +72,16 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
       input_type: 'number',
       position: criteria.length,
     };
+    if (autoFocus) pendingFocus.current = `criterion-name-${id}`;
     setCriteria((prev) => [...prev, draft]);
   };
+
+  useEffect(() => {
+    if (pendingFocus.current) {
+      document.getElementById(pendingFocus.current)?.focus();
+      pendingFocus.current = null;
+    }
+  }, [criteria]);
 
   const updateCriterion = (id: string, field: keyof Criterion, val: any) => {
     setCriteria((prev) => prev.map((c) => (c.id === id ? { ...c, [field]: val } : c)));
@@ -216,16 +226,53 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
     setTab(key);
   };
 
+  const handleTabKeyDown = (e: React.KeyboardEvent, index: number) => {
+    const keys = tabs.map((t) => t.key);
+    if (e.key === 'ArrowRight') {
+      e.preventDefault();
+      document.getElementById(`tab-${keys[(index + 1) % tabs.length]}`)?.focus();
+    } else if (e.key === 'ArrowLeft') {
+      e.preventDefault();
+      document.getElementById(`tab-${keys[(index - 1 + tabs.length) % tabs.length]}`)?.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      document.getElementById(`tab-${keys[0]}`)?.focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      document.getElementById(`tab-${keys[tabs.length - 1]}`)?.focus();
+    }
+  };
+
+  useEffect(() => {
+    const handleGlobalKey = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+      const map: Record<string, Tab> = { '1': 'faktor', '2': 'pilihan', '3': 'nilai', '4': 'hasil' };
+      if (map[e.key]) handleTabClick(map[e.key]);
+    };
+    window.addEventListener('keydown', handleGlobalKey);
+    return () => window.removeEventListener('keydown', handleGlobalKey);
+  }, [canViewHasil, hasCriteria, hasAlternatives, weightValid]);
+
   return (
     <div>
       {/* Tab Navigation */}
-      <div className="flex border-2 border-[#1A1A1A] bg-white mb-8 w-fit max-w-full overflow-x-auto">
+      <div
+        role="tablist"
+        aria-label="Navigasi editor"
+        className="flex border-2 border-[#1A1A1A] bg-white mb-6 w-fit max-w-full overflow-x-auto"
+      >
         {tabs.map((t, i) => {
           const locked = t.key === 'hasil' && !canViewHasil;
           return (
             <button
               key={t.key}
+              id={`tab-${t.key}`}
+              role="tab"
+              aria-selected={tab === t.key}
               onClick={() => handleTabClick(t.key)}
+              onKeyDown={(e) => handleTabKeyDown(e, i)}
+              tabIndex={tab === t.key ? 0 : -1}
               title={locked ? 'Lengkapi faktor, kepentingan=1.00, dan pilihan dulu' : undefined}
               className={`relative px-6 py-3 font-bold text-sm transition-colors ${i > 0 ? 'border-l-2 border-[#1A1A1A]' : ''} ${
                 tab === t.key
@@ -246,6 +293,23 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
         })}
       </div>
 
+      {/* Keyboard hint */}
+      <div className="flex items-center gap-3 mb-6 text-xs text-[#333333]">
+        <span>Navigasi keyboard:</span>
+        <span className="flex gap-1.5 items-center">
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-[#F0F0F0]">←</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-[#F0F0F0]">→</kbd>
+          <span>geser tab</span>
+        </span>
+        <span className="flex gap-1.5 items-center">
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-[#F0F0F0]">1</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-[#F0F0F0]">2</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-[#F0F0F0]">3</kbd>
+          <kbd className="border border-[#1A1A1A] px-1.5 py-0.5 font-mono bg-[#F0F0F0]">4</kbd>
+          <span>loncat langsung</span>
+        </span>
+      </div>
+
       {/* ── Tab: Faktor ── */}
       {tab === 'faktor' && (
         <div>
@@ -262,7 +326,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
                 <p className="text-xs text-[#FF3D00] mt-1">Pastikan total kepentingan pas di 1.00</p>
               )}
             </div>
-            <button onClick={addCriterion} className="brutal-btn px-4 py-2 bg-[#1A1A1A] text-white text-sm font-bold">
+            <button onClick={() => addCriterion(true)} className="brutal-btn px-4 py-2 bg-[#1A1A1A] text-white text-sm font-bold">
               + Tambah Faktor
             </button>
           </div>
@@ -282,7 +346,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
                 <p>• <strong>Arah nilai</strong> — "makin besar makin baik" (Rating) atau "makin kecil makin baik" (Harga)</p>
                 <p>• <strong>Cara nilai</strong> — angka bebas atau skala 1–5 kalau susah dikuantifikasi</p>
               </div>
-              <button onClick={addCriterion} className="brutal-btn px-6 py-2.5 bg-[#FF3D00] text-white font-bold">
+              <button onClick={() => addCriterion(true)} className="brutal-btn px-6 py-2.5 bg-[#FF3D00] text-white font-bold">
                 + Tambah Faktor Pertama
               </button>
             </div>
@@ -293,9 +357,16 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
                   <div className="flex flex-col gap-1 flex-1 min-w-[160px]">
                     <label className="text-xs font-bold text-[#1A1A1A]">Nama Faktor</label>
                     <input
+                      id={`criterion-name-${c.id}`}
                       value={c.name}
                       onChange={(e) => updateCriterion(c.id, 'name', e.target.value)}
                       onBlur={() => saveCriterion(c)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          document.getElementById(`criterion-weight-${c.id}`)?.focus();
+                        }
+                      }}
                       placeholder="cth: Harga, Jarak, Rating..."
                       className="brutal-input px-3 py-2 text-sm w-full"
                     />
@@ -303,6 +374,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
                   <div className="flex flex-col gap-1 w-28">
                     <label className="text-xs font-bold text-[#1A1A1A]">Seberapa penting?</label>
                     <input
+                      id={`criterion-weight-${c.id}`}
                       type="number"
                       step="0.01"
                       min="0"
@@ -310,6 +382,18 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
                       value={c.weight}
                       onChange={(e) => updateCriterion(c.id, 'weight', parseFloat(e.target.value) || 0)}
                       onBlur={() => saveCriterion(c)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          const idx = criteria.findIndex((x) => x.id === c.id);
+                          const next = criteria[idx + 1];
+                          if (next) {
+                            document.getElementById(`criterion-name-${next.id}`)?.focus();
+                          } else {
+                            addCriterion(true);
+                          }
+                        }
+                      }}
                       placeholder="0.00 – 1.00"
                       className="brutal-input px-3 py-2 text-sm w-full"
                     />
