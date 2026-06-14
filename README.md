@@ -15,7 +15,7 @@ Putuskan.id adalah SaaS Sistem Pendukung Keputusan (SPK) berbasis metode **SAW (
 | Auth | [Better Auth](https://better-auth.com) (email/password) |
 | Database | MySQL 8, raw SQL via `mysql2/promise` |
 | Charts | Recharts |
-| Deploy | VPS + Nginx + PM2 |
+
 
 ---
 
