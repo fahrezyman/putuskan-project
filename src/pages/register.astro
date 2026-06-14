@@ -1,0 +1,148 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const user = Astro.locals.user;
+if (user) return Astro.redirect('/dashboard');
+---
+
+<Layout title="Daftar">
+  <div class="min-h-screen bg-[#F0F0F0] flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="mb-8">
+        <a href="/">
+          <img src="/putuskan-logo.png" alt="Putuskan.id" class="h-9 w-auto" />
+        </a>
+      </div>
+
+      <div class="brutal-card p-8">
+        <h1 class="text-2xl font-bold mb-2">Daftar Gratis</h1>
+        <p class="text-[#333333] text-sm mb-8">
+          Sudah punya akun? <a href="/login" class="text-[#FF3D00] font-bold hover:underline">Masuk</a>
+        </p>
+
+        <div id="error-msg" class="hidden border-2 border-red-600 bg-red-50 text-red-600 px-4 py-3 text-sm font-medium mb-6"></div>
+
+        <form id="register-form" class="flex flex-col gap-5">
+          <div class="flex flex-col gap-1.5">
+            <label for="name" class="font-bold text-sm text-[#1A1A1A]">Nama</label>
+            <input
+              id="name"
+              type="text"
+              required
+              placeholder="Nama kamu"
+              class="brutal-input px-3 py-2.5 w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="email" class="font-bold text-sm text-[#1A1A1A]">Email</label>
+            <input
+              id="email"
+              type="email"
+              required
+              placeholder="kamu@email.com"
+              class="brutal-input px-3 py-2.5 w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="password" class="font-bold text-sm text-[#1A1A1A]">Password</label>
+            <div class="relative">
+              <input
+                id="password"
+                type="password"
+                required
+                minlength="8"
+                placeholder="Minimal 8 karakter"
+                class="brutal-input px-3 py-2.5 w-full pr-28"
+              />
+              <button
+                type="button"
+                id="toggle-password"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#333333] hover:text-[#FF3D00] transition-colors"
+                tabindex="-1"
+              >
+                Tampilkan
+              </button>
+            </div>
+            <p id="pw-hint" class="text-xs text-[#333333]">Minimal 8 karakter</p>
+          </div>
+
+          <button
+            type="submit"
+            id="submit-btn"
+            class="brutal-btn px-5 py-3 bg-[#FF3D00] text-white font-bold w-full mt-2"
+          >
+            Buat Akun
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Password toggle
+  const pwInput = document.getElementById('password') as HTMLInputElement;
+  const toggleBtn = document.getElementById('toggle-password') as HTMLButtonElement;
+  const pwHint = document.getElementById('pw-hint') as HTMLParagraphElement;
+
+  toggleBtn?.addEventListener('click', () => {
+    const isHidden = pwInput.type === 'password';
+    pwInput.type = isHidden ? 'text' : 'password';
+    toggleBtn.textContent = isHidden ? 'Sembunyikan' : 'Tampilkan';
+  });
+
+  // Realtime password hint
+  pwInput?.addEventListener('input', () => {
+    const len = pwInput.value.length;
+    if (len === 0) {
+      pwHint.textContent = 'Minimal 8 karakter';
+      pwHint.className = 'text-xs text-[#333333]';
+    } else if (len < 8) {
+      pwHint.textContent = `Kurang ${8 - len} karakter lagi`;
+      pwHint.className = 'text-xs text-[#FF3D00] font-medium';
+    } else {
+      pwHint.textContent = 'Oke!';
+      pwHint.className = 'text-xs text-green-600 font-medium';
+    }
+  });
+
+  // Form submit
+  const form = document.getElementById('register-form') as HTMLFormElement;
+  const errorMsg = document.getElementById('error-msg') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Membuat akun...';
+
+    const name = (document.getElementById('name') as HTMLInputElement).value;
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = pwInput.value;
+
+    try {
+      const res = await fetch('/api/auth/sign-up/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (res.ok) {
+        window.location.href = '/dashboard';
+      } else {
+        const data = await res.json();
+        errorMsg.textContent = data.message ?? 'Gagal membuat akun. Coba lagi.';
+        errorMsg.classList.remove('hidden');
+      }
+    } catch {
+      errorMsg.textContent = 'Terjadi kesalahan. Coba lagi.';
+      errorMsg.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Buat Akun';
+    }
+  });
+</script>

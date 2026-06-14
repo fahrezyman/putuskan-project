@@ -1,0 +1,55 @@
+---
+const pathname = Astro.url.pathname;
+const user = Astro.locals.user ?? null;
+---
+
+<header class="border-b-2 border-[#1A1A1A] bg-white sticky top-0 z-50">
+  <nav class="container mx-auto px-4 max-w-6xl h-16 flex items-center justify-between">
+    <a href="/" class="flex items-center">
+      <img src="/putuskan-logo.png" alt="Putuskan.id" class="h-8 w-auto" />
+    </a>
+
+    <div class="flex items-center gap-3">
+      {user ? (
+        <>
+          <a
+            href="/dashboard"
+            class:list={[
+              'px-3 py-2 font-medium text-sm transition-colors hidden sm:inline',
+              pathname.startsWith('/dashboard') ? 'text-[#FF3D00]' : 'text-[#333333] hover:text-[#1A1A1A]'
+            ]}
+          >
+            Dashboard
+          </a>
+          <button
+            id="signout-btn"
+            class="brutal-btn px-3 md:px-4 py-2 text-sm bg-[#1A1A1A] text-white"
+          >
+            Keluar
+          </button>
+        </>
+      ) : (
+        <>
+          <a href="/login" class="px-4 py-2 font-medium text-sm text-[#333333] hover:text-[#1A1A1A] transition-colors">
+            Masuk
+          </a>
+          <a href="/register" class="brutal-btn px-4 py-2 text-sm bg-[#FF3D00] text-white">
+            Daftar Gratis
+          </a>
+        </>
+      )}
+    </div>
+  </nav>
+</header>
+
+<script>
+  import { authClient } from '../../lib/auth/client';
+
+  document.getElementById('signout-btn')?.addEventListener('click', async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => { window.location.href = '/'; },
+      },
+    });
+  });
+</script>

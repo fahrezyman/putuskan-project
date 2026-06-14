@@ -1,0 +1,91 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+---
+
+<AppLayout title="Project Baru">
+  <div class="max-w-xl">
+    <div class="mb-8">
+      <a href="/dashboard" class="text-sm text-[#333333] hover:text-[#FF3D00] font-medium">← Dashboard</a>
+    </div>
+
+    <h1 class="text-3xl font-bold mb-2">Project Baru<span class="text-[#FF3D00]">.</span></h1>
+    <p class="text-[#333333] mb-8">Beri nama project keputusanmu. Kamu bisa ubah ini nanti.</p>
+
+    <div id="error-msg" class="hidden border-2 border-red-600 bg-red-50 text-red-600 px-4 py-3 text-sm font-medium mb-6"></div>
+
+    <form id="new-project-form" class="brutal-card p-8 flex flex-col gap-6">
+      <div class="flex flex-col gap-1.5">
+        <label for="name" class="font-bold text-sm text-[#1A1A1A]">Nama Project</label>
+        <input
+          id="name"
+          type="text"
+          required
+          maxlength="255"
+          placeholder="cth: Pemilihan Laptop Terbaik"
+          class="brutal-input px-3 py-2.5 w-full"
+          autofocus
+        />
+      </div>
+
+      <div class="flex flex-col gap-1.5">
+        <label for="description" class="font-bold text-sm text-[#1A1A1A]">
+          Deskripsi <span class="font-normal text-[#333333]">(opsional)</span>
+        </label>
+        <textarea
+          id="description"
+          rows="3"
+          maxlength="500"
+          placeholder="Konteks singkat tentang keputusan ini..."
+          class="brutal-input px-3 py-2.5 w-full resize-none"
+        ></textarea>
+      </div>
+
+      <button
+        type="submit"
+        id="submit-btn"
+        class="brutal-btn px-5 py-3 bg-[#FF3D00] text-white font-bold w-full"
+      >
+        Buat Project →
+      </button>
+    </form>
+  </div>
+</AppLayout>
+
+<script>
+  const form = document.getElementById('new-project-form') as HTMLFormElement;
+  const errorMsg = document.getElementById('error-msg') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Membuat...';
+
+    const name = (document.getElementById('name') as HTMLInputElement).value;
+    const description = (document.getElementById('description') as HTMLTextAreaElement).value;
+
+    try {
+      const res = await fetch('/api/projects', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, description }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        window.location.href = `/project/${data.id}`;
+      } else {
+        errorMsg.textContent = data.error ?? 'Gagal membuat project.';
+        errorMsg.classList.remove('hidden');
+      }
+    } catch {
+      errorMsg.textContent = 'Terjadi kesalahan. Coba lagi.';
+      errorMsg.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Buat Project →';
+    }
+  });
+</script>

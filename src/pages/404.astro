@@ -1,0 +1,28 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Halaman Tidak Ditemukan">
+  <div class="min-h-screen bg-[#F0F0F0] flex items-center justify-center p-4">
+    <div class="text-center max-w-md">
+      <div class="brutal-card p-10 mb-6">
+        <div class="text-8xl font-bold text-[#FF3D00] mb-2">404</div>
+        <div class="text-4xl font-bold text-[#1A1A1A] mb-6">Nyasar nih<span class="text-[#FF3D00]">.</span></div>
+        <p class="text-[#333333] mb-8">
+          Halaman yang kamu cari nggak ada. Mungkin udah dihapus, atau kamu salah ketik URL-nya.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a href="/" class="brutal-btn px-6 py-3 bg-[#FF3D00] text-white font-bold inline-block">
+            Ke Beranda
+          </a>
+          <a href="/dashboard" class="brutal-btn px-6 py-3 bg-white text-[#1A1A1A] font-bold inline-block">
+            Ke Dashboard
+          </a>
+        </div>
+      </div>
+      <a href="/">
+        <img src="/putuskan-logo.png" alt="Putuskan.id" class="h-8 w-auto mx-auto" />
+      </a>
+    </div>
+  </div>
+</Layout>

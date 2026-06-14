@@ -1,0 +1,117 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const user = Astro.locals.user;
+if (user) return Astro.redirect('/dashboard');
+---
+
+<Layout title="Masuk">
+  <div class="min-h-screen bg-[#F0F0F0] flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="mb-8">
+        <a href="/">
+          <img src="/putuskan-logo.png" alt="Putuskan.id" class="h-9 w-auto" />
+        </a>
+      </div>
+
+      <div class="brutal-card p-8">
+        <h1 class="text-2xl font-bold mb-2">Masuk</h1>
+        <p class="text-[#333333] text-sm mb-8">
+          Belum punya akun? <a href="/register" class="text-[#FF3D00] font-bold hover:underline">Daftar gratis</a>
+        </p>
+
+        <div id="error-msg" class="hidden border-2 border-red-600 bg-red-50 text-red-600 px-4 py-3 text-sm font-medium mb-6"></div>
+
+        <form id="login-form" class="flex flex-col gap-5">
+          <div class="flex flex-col gap-1.5">
+            <label for="email" class="font-bold text-sm text-[#1A1A1A]">Email</label>
+            <input
+              id="email"
+              type="email"
+              required
+              placeholder="kamu@email.com"
+              class="brutal-input px-3 py-2.5 w-full"
+            />
+          </div>
+
+          <div class="flex flex-col gap-1.5">
+            <label for="password" class="font-bold text-sm text-[#1A1A1A]">Password</label>
+            <div class="relative">
+              <input
+                id="password"
+                type="password"
+                required
+                placeholder="••••••••"
+                class="brutal-input px-3 py-2.5 w-full pr-28"
+              />
+              <button
+                type="button"
+                id="toggle-password"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-[#333333] hover:text-[#FF3D00] transition-colors"
+                tabindex="-1"
+              >
+                Tampilkan
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            id="submit-btn"
+            class="brutal-btn px-5 py-3 bg-[#FF3D00] text-white font-bold w-full mt-2"
+          >
+            Masuk
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  // Password toggle
+  const pwInput = document.getElementById('password') as HTMLInputElement;
+  const toggleBtn = document.getElementById('toggle-password') as HTMLButtonElement;
+  toggleBtn?.addEventListener('click', () => {
+    const isHidden = pwInput.type === 'password';
+    pwInput.type = isHidden ? 'text' : 'password';
+    toggleBtn.textContent = isHidden ? 'Sembunyikan' : 'Tampilkan';
+  });
+
+  // Form submit
+  const form = document.getElementById('login-form') as HTMLFormElement;
+  const errorMsg = document.getElementById('error-msg') as HTMLDivElement;
+  const submitBtn = document.getElementById('submit-btn') as HTMLButtonElement;
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorMsg.classList.add('hidden');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Memproses...';
+
+    const email = (document.getElementById('email') as HTMLInputElement).value;
+    const password = pwInput.value;
+
+    try {
+      const res = await fetch('/api/auth/sign-in/email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (res.ok) {
+        window.location.href = '/dashboard';
+      } else {
+        const data = await res.json();
+        errorMsg.textContent = data.message ?? 'Email atau password salah.';
+        errorMsg.classList.remove('hidden');
+      }
+    } catch {
+      errorMsg.textContent = 'Terjadi kesalahan. Coba lagi.';
+      errorMsg.classList.remove('hidden');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Masuk';
+    }
+  });
+</script>

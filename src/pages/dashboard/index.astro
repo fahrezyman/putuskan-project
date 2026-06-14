@@ -1,0 +1,22 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import ProjectList from '../../components/spk/ProjectList';
+import { getProjectsByUser } from '../../lib/db/queries';
+
+const user = Astro.locals.user!;
+const projects = await getProjectsByUser(user.id);
+---
+
+<AppLayout title="Dashboard">
+  <div class="flex items-center justify-between mb-10">
+    <div>
+      <h1 class="text-3xl font-bold">Halo, {user.name.split(' ')[0]}<span class="text-[#FF3D00]">.</span></h1>
+      <p class="text-[#333333] mt-1">{projects.length === 0 ? 'Belum ada project nih.' : `${projects.length} project aktif.`}</p>
+    </div>
+    <a href="/project/new" class="brutal-btn px-5 py-2.5 bg-[#FF3D00] text-white font-bold text-sm inline-block">
+      + Project Baru
+    </a>
+  </div>
+
+  <ProjectList client:load initialProjects={projects} />
+</AppLayout>

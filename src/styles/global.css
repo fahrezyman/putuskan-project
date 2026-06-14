@@ -1,0 +1,105 @@
+@import "tailwindcss";
+@import "@fontsource/space-grotesk/400.css";
+@import "@fontsource/space-grotesk/500.css";
+@import "@fontsource/space-grotesk/700.css";
+
+@theme {
+  /* Colors */
+  --color-ink: #1A1A1A;
+  --color-gray: #333333;
+  --color-accent: #FF3D00;
+  --color-surface: #F0F0F0;
+  --color-white: #FFFFFF;
+
+  /* Typography */
+  --font-sans: "Space Grotesk", sans-serif;
+
+  /* Neo-Brutalism tokens */
+  --shadow-brutal: 4px 4px 0px #1A1A1A;
+  --shadow-brutal-lg: 6px 6px 0px #1A1A1A;
+  --shadow-brutal-accent: 4px 4px 0px #FF3D00;
+  --border-brutal: 2px solid #1A1A1A;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+}
+
+@layer utilities {
+  .brutal-border {
+    border: var(--border-brutal);
+  }
+
+  .brutal-shadow {
+    box-shadow: var(--shadow-brutal);
+  }
+
+  .brutal-shadow-lg {
+    box-shadow: var(--shadow-brutal-lg);
+  }
+
+  .brutal-shadow-accent {
+    box-shadow: var(--shadow-brutal-accent);
+  }
+
+  .brutal-card {
+    border: var(--border-brutal);
+    box-shadow: var(--shadow-brutal);
+    background-color: var(--color-white);
+  }
+
+  .brutal-card:hover {
+    box-shadow: var(--shadow-brutal-lg);
+    transform: translate(-1px, -1px);
+  }
+
+  .brutal-btn {
+    border: var(--border-brutal);
+    box-shadow: var(--shadow-brutal);
+    font-weight: 700;
+    transition: all 0.1s ease;
+    cursor: pointer;
+  }
+
+  .brutal-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: var(--shadow-brutal-lg);
+  }
+
+  .brutal-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+  }
+
+  .brutal-input {
+    border: var(--border-brutal);
+    background-color: var(--color-white);
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    outline: none;
+    transition: box-shadow 0.1s ease;
+  }
+
+  .brutal-input:focus {
+    box-shadow: var(--shadow-brutal-accent);
+  }
+}

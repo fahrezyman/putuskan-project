@@ -1,0 +1,88 @@
+---
+import AppLayout from '../../layouts/AppLayout.astro';
+import ProjectEditor from '../../components/spk/ProjectEditor';
+import { getProjectById, getCriteriaByProject, getAlternativesByProject, getValuesByProject } from '../../lib/db/queries';
+
+const { id } = Astro.params;
+const user = Astro.locals.user!;
+
+const project = await getProjectById(id!, user.id);
+if (!project) return Astro.redirect('/dashboard');
+
+const [criteria, alternatives, values] = await Promise.all([
+  getCriteriaByProject(id!),
+  getAlternativesByProject(id!),
+  getValuesByProject(id!),
+]);
+---
+
+<AppLayout title={project.name}>
+  <div class="mb-8">
+    <a href="/dashboard" class="text-sm text-[#333333] hover:text-[#FF3D00] font-medium">← Dashboard</a>
+
+    <div class="flex items-start justify-between gap-4 mt-2">
+      <div class="flex-1 min-w-0">
+        <div class="flex items-center gap-2">
+          <h1
+            id="project-name"
+            contenteditable="true"
+            spellcheck="false"
+            class="text-2xl md:text-3xl font-bold text-[#1A1A1A] outline-none border-b-2 border-transparent focus:border-[#FF3D00] cursor-text pr-1 min-w-0 break-words"
+            data-original={project.name}
+          >
+            {project.name}
+          </h1>
+          <span class="text-3xl font-bold text-[#FF3D00] select-none">.</span>
+        </div>
+        {project.description && (
+          <p class="text-[#333333] mt-1 text-sm">{project.description}</p>
+        )}
+      </div>
+      <span class="brutal-border px-3 py-1 text-xs font-bold bg-white shrink-0">SAW</span>
+    </div>
+  </div>
+
+  <ProjectEditor
+    client:load
+    projectId={id!}
+    initialCriteria={criteria}
+    initialAlternatives={alternatives}
+    initialValues={values}
+  />
+</AppLayout>
+
+<script>
+  const nameEl = document.getElementById('project-name') as HTMLElement;
+  const projectId = window.location.pathname.split('/').pop();
+
+  nameEl?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); nameEl.blur(); }
+    if (e.key === 'Escape') {
+      nameEl.textContent = nameEl.dataset.original ?? '';
+      nameEl.blur();
+    }
+  });
+
+  nameEl?.addEventListener('blur', async () => {
+    const newName = nameEl.textContent?.trim() ?? '';
+    if (!newName || newName === nameEl.dataset.original) {
+      nameEl.textContent = nameEl.dataset.original ?? '';
+      return;
+    }
+
+    const res = await fetch(`/api/projects/${projectId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: newName }),
+    });
+
+    if (res.ok) {
+      nameEl.dataset.original = newName;
+      document.title = `${newName} — Putuskan.id`;
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Nama disimpan', type: 'success' } }));
+    } else {
+      nameEl.textContent = nameEl.dataset.original ?? '';
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: { message: 'Gagal menyimpan nama', type: 'error' } }));
+    }
+  });
+</script>

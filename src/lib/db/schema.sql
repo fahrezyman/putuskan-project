@@ -1,0 +1,100 @@
+-- Putuskan.id — Database Schema
+
+CREATE DATABASE IF NOT EXISTS putuskan_id CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE putuskan_id;
+
+-- Better Auth tables
+CREATE TABLE IF NOT EXISTS user (
+  id VARCHAR(36) PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  emailVerified BOOLEAN NOT NULL DEFAULT FALSE,
+  image VARCHAR(500),
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS session (
+  id VARCHAR(36) PRIMARY KEY,
+  expiresAt DATETIME NOT NULL,
+  token VARCHAR(500) NOT NULL UNIQUE,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  ipAddress VARCHAR(100),
+  userAgent TEXT,
+  userId VARCHAR(36) NOT NULL,
+  FOREIGN KEY (userId) REFERENCES user(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS account (
+  id VARCHAR(36) PRIMARY KEY,
+  accountId VARCHAR(255) NOT NULL,
+  providerId VARCHAR(100) NOT NULL,
+  userId VARCHAR(36) NOT NULL,
+  accessToken TEXT,
+  refreshToken TEXT,
+  idToken TEXT,
+  accessTokenExpiresAt DATETIME,
+  refreshTokenExpiresAt DATETIME,
+  scope VARCHAR(500),
+  password VARCHAR(255),
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (userId) REFERENCES user(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS verification (
+  id VARCHAR(36) PRIMARY KEY,
+  identifier VARCHAR(255) NOT NULL,
+  value VARCHAR(500) NOT NULL,
+  expiresAt DATETIME NOT NULL,
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- SPK Projects
+CREATE TABLE IF NOT EXISTS project (
+  id VARCHAR(36) PRIMARY KEY,
+  userId VARCHAR(36) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  method ENUM('SAW') NOT NULL DEFAULT 'SAW',
+  createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (userId) REFERENCES user(id) ON DELETE CASCADE,
+  INDEX idx_project_userId (userId)
+);
+
+-- Kriteria
+CREATE TABLE IF NOT EXISTS criterion (
+  id VARCHAR(36) PRIMARY KEY,
+  projectId VARCHAR(36) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  weight DECIMAL(5, 4) NOT NULL,
+  type ENUM('benefit', 'cost') NOT NULL,
+  input_type ENUM('number', 'scale5') NOT NULL DEFAULT 'number',
+  position INT NOT NULL DEFAULT 0,
+  FOREIGN KEY (projectId) REFERENCES project(id) ON DELETE CASCADE,
+  INDEX idx_criterion_projectId (projectId)
+);
+
+-- Alternatif
+CREATE TABLE IF NOT EXISTS alternative (
+  id VARCHAR(36) PRIMARY KEY,
+  projectId VARCHAR(36) NOT NULL,
+  name VARCHAR(255) NOT NULL,
+  position INT NOT NULL DEFAULT 0,
+  FOREIGN KEY (projectId) REFERENCES project(id) ON DELETE CASCADE,
+  INDEX idx_alternative_projectId (projectId)
+);
+
+-- Nilai per alternatif per kriteria
+CREATE TABLE IF NOT EXISTS criterion_value (
+  id VARCHAR(36) PRIMARY KEY,
+  alternativeId VARCHAR(36) NOT NULL,
+  criterionId VARCHAR(36) NOT NULL,
+  value DECIMAL(15, 4) NOT NULL,
+  FOREIGN KEY (alternativeId) REFERENCES alternative(id) ON DELETE CASCADE,
+  FOREIGN KEY (criterionId) REFERENCES criterion(id) ON DELETE CASCADE,
+  UNIQUE KEY uq_alt_criterion (alternativeId, criterionId)
+);
