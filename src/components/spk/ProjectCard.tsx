@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { toast } from '../ui/Toast';
+import { confirmModal } from '../ui/ConfirmModal';
 
 function getRelativeTime(date: string | Date): string {
   const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
@@ -42,7 +43,13 @@ export default function ProjectCard({ project, onDeleted }: Props) {
   }, []);
 
   const handleDelete = async () => {
-    if (!confirm(`Hapus "${project.name}"? Data akan hilang permanen.`)) return;
+    const ok = await confirmModal({
+      title: 'Hapus project?',
+      message: `Hapus "${project.name}"? Data akan hilang permanen.`,
+      confirmLabel: 'Hapus',
+      danger: true,
+    });
+    if (!ok) return;
     setDeleting(true);
     setOpen(false);
 
