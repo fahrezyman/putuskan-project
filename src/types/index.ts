@@ -4,6 +4,8 @@ export interface Project {
   name: string;
   description: string | null;
   conclusion: string | null;
+  resultsViewedAt: Date | null;
+  unlocked: boolean;
   method: 'SAW';
   createdAt: Date;
   updatedAt: Date;

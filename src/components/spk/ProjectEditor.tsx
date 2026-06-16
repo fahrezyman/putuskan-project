@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Criterion, Alternative, CriterionValue, SAWResult } from '../../types';
 import { calculateSAW } from '../../lib/saw';
+import { isProjectLocked } from '../../lib/project-lock';
 import ResultsView from './ResultsView';
 import { toast } from '../ui/Toast';
 
@@ -49,9 +50,21 @@ interface Props {
   initialAlternatives: Alternative[];
   initialValues: CriterionValue[];
   initialConclusion: string | null;
+  initialResultsViewedAt: string | Date | null;
+  initialUnlocked: boolean;
+  initialUpdatedAt: string | Date;
 }
 
-export default function ProjectEditor({ projectId, initialCriteria, initialAlternatives, initialValues, initialConclusion }: Props) {
+export default function ProjectEditor({
+  projectId,
+  initialCriteria,
+  initialAlternatives,
+  initialValues,
+  initialConclusion,
+  initialResultsViewedAt,
+  initialUnlocked,
+  initialUpdatedAt,
+}: Props) {
   const [tab, setTab] = useState<Tab>('faktor');
   const [criteria, setCriteria] = useState<Criterion[]>(initialCriteria);
   const [alternatives, setAlternatives] = useState<Alternative[]>(initialAlternatives);
@@ -59,11 +72,18 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
   const [savingId, setSavingId] = useState<string | null>(null);
   const pendingFocus = useRef<string | null>(null);
 
+  const locked = isProjectLocked({
+    unlocked: initialUnlocked,
+    resultsViewedAt: initialResultsViewedAt,
+    updatedAt: initialUpdatedAt,
+  });
+
   const totalWeight = criteria.reduce((s, c) => s + Number(c.weight), 0);
   const weightValid = Math.abs(totalWeight - 1) < 0.001;
 
   // ── Faktor (Kriteria) ──
   const addCriterion = (autoFocus = false) => {
+    if (locked) { toast('Project ini terkunci', 'error'); return; }
     const id = `draft-${Date.now()}`;
     const draft: Criterion = {
       id,
@@ -90,6 +110,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
   };
 
   const saveCriterion = async (c: Criterion) => {
+    if (locked) return;
     if (!c.name.trim()) return;
     if (c.weight <= 0 || c.weight > 1) return;
     setSavingId(c.id);
@@ -109,6 +130,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
   };
 
   const removeCriterion = async (c: Criterion) => {
+    if (locked) { toast('Project ini terkunci', 'error'); return; }
     if (!c.id.startsWith('draft-')) {
       const res = await fetch(`/api/projects/${projectId}/criteria`, {
         method: 'DELETE',
@@ -124,6 +146,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
 
   // ── Pilihan (Alternatif) ──
   const addAlternative = () => {
+    if (locked) { toast('Project ini terkunci', 'error'); return; }
     const draft: Alternative = {
       id: `draft-${Date.now()}`,
       projectId,
@@ -138,6 +161,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
   };
 
   const saveAlternative = async (a: Alternative) => {
+    if (locked) return;
     if (!a.name.trim()) return;
     setSavingId(a.id);
     const res = await fetch(`/api/projects/${projectId}/alternatives`, {
@@ -156,6 +180,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
   };
 
   const removeAlternative = async (a: Alternative) => {
+    if (locked) { toast('Project ini terkunci', 'error'); return; }
     if (!a.id.startsWith('draft-')) {
       const res = await fetch(`/api/projects/${projectId}/alternatives`, {
         method: 'DELETE',
@@ -177,6 +202,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
 
   const handleValueChange = useCallback(
     async (altId: string, critId: string, raw: string) => {
+      if (locked) { toast('Project ini terkunci', 'error'); return; }
       const cleaned = raw.replace(/\./g, '').replace(',', '.');
       const num = parseFloat(cleaned);
       if (isNaN(num)) return;
@@ -199,7 +225,7 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
       });
       if (!res.ok) toast('Gagal menyimpan nilai', 'error');
     },
-    [projectId]
+    [projectId, locked]
   );
 
   // ── Hasil ──
@@ -212,6 +238,12 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
   const hasCriteria = savedCriteria.length > 0;
   const hasAlternatives = savedAlternatives.length > 0;
   const canViewHasil = hasCriteria && hasAlternatives && weightValid;
+
+  useEffect(() => {
+    if (tab === 'hasil' && canViewHasil) {
+      fetch(`/api/projects/${projectId}`, { method: 'POST' }).catch(() => {});
+    }
+  }, [tab, canViewHasil, projectId]);
 
   const tabs: { key: Tab; label: string; badge?: string }[] = [
     { key: 'faktor', label: 'Faktor', badge: hasCriteria ? `${savedCriteria.length}` : undefined },
@@ -260,6 +292,15 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
 
   return (
     <div>
+      {locked && (
+        <div className="border-2 border-[#1A1A1A] shadow-[4px_4px_0px_#1A1A1A] p-4 mb-6 bg-[#FF3D00] text-white flex items-center gap-3">
+          <span className="text-xl">🔒</span>
+          <p className="text-sm font-bold">
+            Project ini terkunci karena sudah dilihat hasilnya dan gak diubah lagi selama beberapa hari. Faktor, pilihan, dan nilai gak bisa diedit.
+          </p>
+        </div>
+      )}
+
       {/* Tab Navigation */}
       <div
         role="tablist"
@@ -330,7 +371,11 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
                 <p className="text-xs text-[#FF3D00] mt-1">Pastikan total kepentingan pas di 1.00</p>
               )}
             </div>
-            <button onClick={() => addCriterion(true)} className="brutal-btn px-4 py-2 bg-[#1A1A1A] text-white text-sm font-bold">
+            <button
+              onClick={() => addCriterion(true)}
+              disabled={locked}
+              className="brutal-btn px-4 py-2 bg-[#1A1A1A] text-white text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+            >
               + Tambah Faktor
             </button>
           </div>
@@ -442,7 +487,11 @@ export default function ProjectEditor({ projectId, initialCriteria, initialAlter
       {tab === 'pilihan' && (
         <div>
           <div className="flex justify-end mb-4">
-            <button onClick={addAlternative} className="brutal-btn px-4 py-2 bg-[#1A1A1A] text-white text-sm font-bold">
+            <button
+              onClick={addAlternative}
+              disabled={locked}
+              className="brutal-btn px-4 py-2 bg-[#1A1A1A] text-white text-sm font-bold disabled:opacity-40 disabled:cursor-not-allowed"
+            >
               + Tambah Pilihan
             </button>
           </div>

@@ -1,5 +1,5 @@
 import type { APIRoute } from 'astro';
-import { getProjectById, deleteProject, updateProject } from '../../../../lib/db/queries';
+import { getProjectById, deleteProject, updateProject, markResultsViewed } from '../../../../lib/db/queries';
 
 export const PATCH: APIRoute = async ({ locals, params, request }) => {
   if (!locals.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
@@ -20,6 +20,16 @@ export const PATCH: APIRoute = async ({ locals, params, request }) => {
     conclusion: conclusion !== undefined ? (conclusion?.trim() || null) : project.conclusion,
   });
 
+  return new Response(JSON.stringify({ ok: true }), { status: 200 });
+};
+
+export const POST: APIRoute = async ({ locals, params }) => {
+  if (!locals.user) return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
+
+  const project = await getProjectById(params.id!, locals.user.id);
+  if (!project) return new Response(JSON.stringify({ error: 'Not found' }), { status: 404 });
+
+  await markResultsViewed(params.id!);
   return new Response(JSON.stringify({ ok: true }), { status: 200 });
 };
 

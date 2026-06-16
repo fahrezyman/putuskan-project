@@ -39,6 +39,17 @@ export async function deleteProject(id: string, userId: string): Promise<void> {
   await pool.execute('DELETE FROM project WHERE id = ? AND userId = ?', [id, userId]);
 }
 
+export async function touchProject(id: string): Promise<void> {
+  await pool.execute('UPDATE project SET updatedAt = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+}
+
+export async function markResultsViewed(id: string): Promise<void> {
+  await pool.execute(
+    'UPDATE project SET resultsViewedAt = CURRENT_TIMESTAMP WHERE id = ? AND resultsViewedAt IS NULL',
+    [id]
+  );
+}
+
 // Criteria
 export async function getCriteriaByProject(projectId: string): Promise<Criterion[]> {
   const [rows] = await pool.execute(
