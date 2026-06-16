@@ -3,6 +3,10 @@
 @import "@fontsource/space-grotesk/500.css";
 @import "@fontsource/space-grotesk/700.css";
 
+/* ════════════════════════════════════════
+   DESIGN TOKENS
+   ════════════════════════════════════════ */
+
 @theme {
   /* Colors */
   --color-ink: #1A1A1A;
@@ -21,7 +25,7 @@
   --border-brutal: 2px solid #1A1A1A;
 }
 
-/* ── Dark Mode ── */
+/* ── Dark mode token overrides ── */
 html.dark {
   color-scheme: dark;
   --color-ink: #EDEDED;
@@ -44,7 +48,7 @@ html.dark h4, html.dark h5, html.dark h6 {
   color: #EDEDED;
 }
 
-/* Tailwind hardcoded color overrides */
+/* ── Dark mode: Tailwind hardcoded color overrides ── */
 html.dark .bg-white             { background-color: #1C1C1C !important; }
 html.dark .bg-\[\#F0F0F0\]     { background-color: #252525 !important; }
 html.dark .bg-\[\#1A1A1A\]     { background-color: #2D2D2D !important; }
@@ -54,12 +58,16 @@ html.dark .border-\[\#1A1A1A\] { border-color: #555555 !important; }
 html.dark .border-\[\#F0F0F0\] { border-color: #444444 !important; }
 html.dark .border-b-2           { border-color: #444444; }
 
-/* Input & select dark */
+/* ── Dark mode: form fields ── */
 html.dark input, html.dark select, html.dark textarea {
   background-color: #1C1C1C;
   color: #EDEDED;
 }
 html.dark input::placeholder { color: #666666; }
+
+/* ════════════════════════════════════════
+   ANIMATIONS
+   ════════════════════════════════════════ */
 
 @keyframes slideIn {
   from { opacity: 0; transform: translateX(16px); }
@@ -106,6 +114,10 @@ html.dark input::placeholder { color: #666666; }
 }
 .bar-grow.visible { transform: scaleY(1); }
 
+/* ════════════════════════════════════════
+   BASE & COMPONENT CLASSES
+   ════════════════════════════════════════ */
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -124,6 +136,7 @@ html.dark input::placeholder { color: #666666; }
   }
 }
 
+/* ── Neo-brutalism component classes ── */
 @layer utilities {
   .brutal-border {
     border: var(--border-brutal);
